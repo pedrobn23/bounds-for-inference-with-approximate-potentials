@@ -20,22 +20,20 @@ def _is_bayesian(path: str) -> bool:
             the provided path.
     """
     try:
-        net_file = open(path, 'rb')
+        with open(path, 'rb') as net_file:
 
-        # the first line in a UAI file contains type
-        net_type = net_file.readline().strip()
-        ret = net_type == b'BAYES'
+            # the first line in a UAI file contains type
+            net_type = net_file.readline().strip()
+            ret = net_type == b'BAYES'
+            net_file.close()
 
     except OSError as ose:
         raise OSError(f'Error ocurred reading network file {path!r}') from ose
 
-    finally:
-        net_file.close()
-
     return ret
 
 
-def read(path: str) -> models.BayesianNetwork:
+def read(path: str) -> models.BayesianModel:
     """
     Read a bayesian network from a file.
     Read method uses pgmpy to read a bayesian network from either
@@ -66,3 +64,14 @@ def read(path: str) -> models.BayesianNetwork:
         raise OSError(f'Error ocurred reading network file {path!r}') from ose
 
     return reader
+
+def nets(path, networks):
+    for net in networks:
+        if net.endswith('.bif'):
+            fullpath = os.path.join(path, net)
+            reader = read(fullpath)
+            model = reader.get_model()
+            yield net, model.get_cpds()
+            
+        else:
+            raise ValueError(f'Only .bif nets are accepted, got : {net}')

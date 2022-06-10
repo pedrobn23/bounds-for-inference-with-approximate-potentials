@@ -2,7 +2,7 @@ import numpy as np
 from pgmpy.factors.discrete import CPD
 from scipy import stats, special
 
-import approximations
+
 
 def log_values(cpd, approx_cpd):
     values = cpd.values
@@ -12,10 +12,19 @@ def log_values(cpd, approx_cpd):
     return log_values.reshape(values.shape)
 
 
+def l1_distance(cpd, approx_cpd):
+    return abs(cpd.values-approx_cpd.values).sum()
+
+def kl_divergence(cpd, approx_cpd):
+    return log_values(cpd, approx_cpd).sum()
+
 def marg_and_max(values, variables, marginalized):
+    # Marg
     axis = tuple(variables.index(var) for var in marginalized if var in variables)
-    logvalues = logvalues.sum(axis=axis)
-    return logvalues.max()
+    logvalues = values.sum(axis=axis)
+
+    # Max
+    return values.max()
     
 
 def M_error(cpd, approx_cpd, *others):
@@ -23,7 +32,7 @@ def M_error(cpd, approx_cpd, *others):
     logvalues = log_values(cpd, approx_cpd)
 
     result = marg_and_max(logvalues, cpd.variables, other_vars)
-    normalization_factor = np.prod(cpd.cardinality[1:])     
+    normalization_factor = cpd.values.min()
 
     return result/normalization_factor
 
@@ -43,15 +52,12 @@ def D_error(cpd, approx_cpd, *others):
     l1_error = abs(cpd.values-approx_cpd.values).sum()
     D_KL =  special.rel_entr(cpd.values.flatten(),approx_cpd.values.flatten()).sum()
 
-    return np.prod(relative_weight(other, cpd) for other in others) * (l1_error + D_KL)
+    return np.prod([relative_weight(other, cpd)  for other in others])* (l1_error + D_KL)
 
-def poduct_D_bound(cpds, approx_cpds):
+def poduct_D_bound(cpds, approx_cpds, goal_weight):
     result = sum(M_error(cpd,
                          approx_cpd,
                          others(cpds, cpd)) for cpd, approx_cpd in zip(cpds, approx_cds))
 
-    cardinalities = dict()
-    for cpd in cpds:
-        cardinalities.update(cpd.get_cardinality(cpd.variables))
-    # acabar esto
-    normalization_factor = np.prod(np.prod(cpd.cardinality[1:])for      
+    normalization_factor = goal_weight
+    return result/normalization_factor
