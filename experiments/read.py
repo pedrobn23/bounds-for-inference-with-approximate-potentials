@@ -66,12 +66,16 @@ def read(path: str) -> models.BayesianModel:
     return reader
 
 def nets(path, networks):
+    nets = []
     for net in networks:
+        print( f' --> reading new net: {os.path.join(path, net)}.')
         if net.endswith('.bif'):
             fullpath = os.path.join(path, net)
             reader = read(fullpath)
             model = reader.get_model()
-            yield net, model.get_cpds()
+            nets.append((net, model.get_cpds()))
             
         else:
             raise ValueError(f'Only .bif nets are accepted, got : {net}')
+
+    return nets

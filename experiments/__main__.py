@@ -2,14 +2,16 @@ import dataclasses
 import os
 import numpy as np
 import pandas as pd
+import tqdm
 
 from pgmpy.factors.discrete import CPD
 from experiments import approximations, bounds, read
 from typing import List
 
 PATH = 'networks'
-NETWORKS = os.listdir(PATH)
+#NETWORKS = os.listdir(PATH)
 
+NETWORKS = ['child.bif', 'alarm.bif',  'win95pts.bif', 'insurance.bif', 'hailfinder.bif', 'hepar2.bif', 'andes.bif', 'pigs.bif', 'link.bif', 'munin.bif', 'pathfinder.bif', 'barley.bif', 'mildew.bif', 'diabetes.bif']
 
 
 @dataclasses.dataclass
@@ -51,14 +53,15 @@ class Result:
 if __name__ == "__main__":
     results = []
     for l1_error in [0.01, 0.05, 0.1]:
+        print(f' ---- Approximating Error: {l1_error} ----')
         for net, cpds in read.nets(PATH, NETWORKS):
             results = []
-            print(f'--- Approximating net: {net}')
-            approx_cpds = (approximations.noise(cpd) for cpd in cpds)
-            print('------> done')
+            print(f' ---- Approximating net: {net} ----')
+            approx_cpds = [approximations.adjusted_noise(cpd) for cpd in cpds]
+            print(' ---> done')
+            
             for cpd, approx_cpd in zip(cpds, approx_cpds):
-
-                print(cpd)
+                print(f' -- Working on: {cpd.variable}')
                 others = [other for other in cpds if other != cpd]
 
                 res = Result(
@@ -70,6 +73,10 @@ if __name__ == "__main__":
                     D_error=bounds.D_error(cpd, approx_cpd, *others),
                 )
                 results.append(res)
+                print(' -> done')
 
+            print(' -- Performing IO operations')
             df = pd.DataFrame.from_dict([result.asdict() for result in results])
-            df.to_csv(f'{net[:-4]}.csv', index=False)
+            df.to_csv(f'results/{net[:-4]}.csv', index=False)
+            print(' -> done')
+        
