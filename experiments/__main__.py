@@ -11,7 +11,8 @@ from typing import List
 PATH = 'networks'
 #NETWORKS = os.listdir(PATH)
 
-NETWORKS = ['child.bif', 'alarm.bif',  'win95pts.bif', 'insurance.bif', 'hailfinder.bif', 'hepar2.bif', 'andes.bif', 'pigs.bif', 'link.bif', 'munin.bif', 'pathfinder.bif', 'barley.bif', 'mildew.bif', 'diabetes.bif']
+NETWORKS = ['child.bif', 'alarm.bif',  'win95pts.bif', 'insurance.bif',  'hepar2.bif', 'andes.bif', 'pigs.bif', 'link.bif', 'munin.bif', 'pathfinder.bif', 'barley.bif', 'mildew.bif', 'diabetes.bif']
+problematics = ['hailfinder.bif',]
 
 
 @dataclasses.dataclass
