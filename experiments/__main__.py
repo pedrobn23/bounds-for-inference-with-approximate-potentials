@@ -52,9 +52,10 @@ class Result:
 
 if __name__ == "__main__":
     results = []
+    nets = read.nets(PATH, NETWORKS):
     for l1_error in [0.01, 0.05, 0.1]:
         print(f' ---- Approximating Error: {l1_error} ----')
-        for net, cpds in read.nets(PATH, NETWORKS):
+        for net, cpds in nets:
             results = []
             print(f' ---- Approximating net: {net} ----')
             approx_cpds = [approximations.adjusted_noise(cpd) for cpd in cpds]
