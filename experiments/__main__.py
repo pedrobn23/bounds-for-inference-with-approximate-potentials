@@ -8,8 +8,8 @@ from experiments import approximations, bounds, read
 from typing import List
 
 PATH = 'networks'
-#NETWORKS = os.listdir(PATH)
-NETWORKS = ['alarm.bif']
+NETWORKS = os.listdir(PATH)
+
 
 
 @dataclasses.dataclass
